@@ -16,6 +16,9 @@ export default class OPut {
     this.buffer = this.buffer!.subarray(0, this.buffer!.length - n);
     this.flush();
   }
+  close(){
+    this.g.return();
+  }
   flush() {
     if (!this.buffer || !this.need) return;
     if (typeof this.need === 'number') {

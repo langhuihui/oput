@@ -1,4 +1,15 @@
 import OPut from '../src/index';
+test('close', () => {
+  function* reader(): Generator<number, void, Uint8Array> {
+    while(true){
+      let b = yield 5;
+      console.log(b)
+      throw new Error('error');
+    }
+  }
+  const oput = new OPut(reader());
+  oput.close();
+});
 test('number', () => {
   function* reader(): Generator<number, void, Uint8Array> {
     let b = yield 5;

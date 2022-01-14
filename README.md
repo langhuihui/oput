@@ -43,12 +43,8 @@ function *reader(){
   let b = new Uint8Array(5);
   yield b;//填充到b中
   console.log(b[0])
-}
-```
-```js
-function *reader(){
-  let b = new Uint32Array(5);
-  yield b;//填充到b中,一共读取了20个字节
+  b = new Uint32Array(5);
+  yield b;//填充到b中,又读取了20个字节
   console.log(b[0])
 }
 ```
