@@ -1,5 +1,4 @@
 # 0 put do 零存整取库
-[![Build Status](https://travis-ci.org/langhuihui/oput.svg?branch=master)](https://travis-ci.org/langhuihui/oput)
 [![codecov](https://codecov.io/gh/langhuihui/oput/branch/main/graph/badge.svg?token=GpCih64bOv)](https://codecov.io/gh/langhuihui/oput)
 该库旨在解决js需要缓存内存块来解决接收不定长度的数据，取出不定长度的数据的问题。例如tcp的粘包问题。
 
