@@ -48,3 +48,16 @@ function *reader(){
   console.log(b[0])
 }
 ```
+
+### 模式三：通过异步read方式读取数据
+```ts
+  const oput = new OPut();
+  oput.write(new Uint32Array([1, 2]));
+  oput.write(new Uint32Array([1, 2]));
+  oput.read(1).then(value=>{
+    expect(value[0]).toBe(1)
+    return oput.read(4)
+  }).then(value=>{
+    expect(value[3]).toBe(2)
+  })
+```
