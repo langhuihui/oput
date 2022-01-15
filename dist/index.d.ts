@@ -3,11 +3,12 @@ declare type NeedTypes = InputTypes | number;
 declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T;
 export default class OPut {
     g?: Generator<NeedTypes, void, InputTypes> | undefined;
-    need: NeedTypes | void;
+    need?: NeedTypes | void;
+    consumed: number;
     buffer?: Uint8Array;
     resolve?: (v: any) => void;
     constructor(g?: Generator<NeedTypes, void, InputTypes> | undefined);
-    consume(n: number): void;
+    demand(n: NeedTypes | void): void;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
     close(): void;
     flush(): void;

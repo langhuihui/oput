@@ -4,24 +4,30 @@ Types.forEach((t, i) => t.forEach((t) => OPutMap.set(t, i)));
 export default class OPut {
     constructor(g) {
         this.g = g;
+        this.consumed = 0;
         if (g)
             this.need = g.next().value;
     }
-    consume(n) {
-        this.buffer.copyWithin(0, n);
-        this.buffer = this.buffer.subarray(0, this.buffer.length - n);
+    demand(n) {
+        if (this.consumed) {
+            this.buffer.copyWithin(0, this.consumed);
+            this.buffer = this.buffer.subarray(0, this.buffer.length - this.consumed);
+            this.consumed = 0;
+        }
+        this.need = n;
         this.flush();
     }
     read(need) {
-        this.need = need;
         if (this.resolve)
-            this.resolve("read next before last done");
+            Promise.reject("last read not complete yet");
         return new Promise((resolve, reject) => {
             this.resolve = (data) => {
-                this.resolve = reject;
+                delete this.resolve;
+                delete this.need;
+                console.log(data);
                 resolve(data);
             };
-            this.flush();
+            this.demand(need);
         });
     }
     close() {
@@ -31,46 +37,38 @@ export default class OPut {
     flush() {
         if (!this.buffer || !this.need)
             return;
+        let returnValue = null;
         if (typeof this.need === 'number') {
-            const n = this.need;
-            if (this.buffer.length >= n) {
-                if (this.g)
-                    this.need = this.g.next(this.buffer.subarray(0, n)).value;
-                else if (this.resolve)
-                    this.resolve(this.buffer.subarray(0, n));
-                else
-                    return;
-                this.consume(n);
+            if (this.buffer.length >= this.need) {
+                this.consumed = this.need;
+                returnValue = this.buffer.subarray(0, this.consumed);
             }
         }
         else if (this.need instanceof ArrayBuffer) {
-            const n = this.need.byteLength;
-            if (this.buffer.length >= n) {
-                new Uint8Array(this.need).set(this.buffer.subarray(0, n));
-                if (this.g)
-                    this.need = this.g.next().value;
-                else if (this.resolve)
-                    this.resolve(this.need);
-                else
-                    return;
-                this.consume(n);
+            if (this.buffer.length >= this.need.byteLength) {
+                this.consumed = this.need.byteLength;
+                new Uint8Array(this.need).set(this.buffer.subarray(0, this.consumed));
+                returnValue = this.need;
             }
         }
         else if (OPutMap.has(this.need.constructor)) {
             const n = this.need.length << OPutMap.get(this.need.constructor);
             if (this.buffer.length >= n) {
+                this.consumed = n;
                 new Uint8Array(this.need.buffer, this.need.byteOffset).set(this.buffer.subarray(0, n));
-                if (this.g)
-                    this.need = this.g.next().value;
-                else if (this.resolve)
-                    this.resolve(this.need);
-                else
-                    return;
-                this.consume(n);
+                returnValue = this.need;
             }
         }
         else if (this.g) {
             this.g.throw(new Error('Unsupported type'));
+        }
+        if (returnValue) {
+            if (this.g)
+                this.demand(this.g.next(returnValue).value);
+            else if (this.resolve)
+                this.resolve(returnValue);
+            else
+                this.consumed = 0;
         }
     }
     write(value) {

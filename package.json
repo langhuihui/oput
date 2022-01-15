@@ -1,6 +1,6 @@
 {
   "name": "oput",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "0 put do",
   "main": "src/index.ts",
   "module": "dist/index.js",

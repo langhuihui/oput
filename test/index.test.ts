@@ -1,9 +1,9 @@
 import OPut from '../src/index';
 test('close', () => {
   function* reader(): Generator<number, void, Uint8Array> {
-    while(true){
+    while (true) {
       let b = yield 5;
-      console.log(b)
+      console.log('error::', b);
       throw new Error('error');
     }
   }
@@ -65,14 +65,14 @@ test('malloc', () => {
   oput.write(new Uint32Array([1, 2]));
 });
 
-test('read',()=>{
+test('read', () => {
   const oput = new OPut();
   oput.write(new Uint32Array([1, 2]));
   oput.write(new Uint32Array([1, 2]));
-  oput.read(1).then(value=>{
-    expect(value[0]).toBe(1)
-    return oput.read(4)
-  }).then(value=>{
-    expect(value[3]).toBe(2)
-  })
-})
+  oput.read(1).then(value => {
+    expect(value[0]).toBe(1);
+    return oput.read(4);
+  }).then(value => {
+    expect(value[3]).toBe(2);
+  });
+});
