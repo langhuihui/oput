@@ -14,6 +14,16 @@ export default class OPut {
   constructor(public g?: Generator<NeedTypes, void, InputTypes>) {
     if (g) this.need = g.next().value;
   }
+  async fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void> {
+    const { done, value } = await source.read();
+    if (done) {
+      this.close();
+      return;
+    } else {
+      this.write(value!);
+      return this.fillFromReader(source);
+    }
+  };
   demand(n: NeedTypes | void) {
     if (this.consumed) {
       this.buffer!.copyWithin(0, this.consumed);
@@ -29,7 +39,7 @@ export default class OPut {
       this.resolve = (data) => {
         delete this.resolve;
         delete this.need;
-        console.log(data)
+        console.log(data);
         resolve(data);
       };
       this.demand(need);
@@ -50,14 +60,14 @@ export default class OPut {
       if (this.buffer.length >= this.need.byteLength) {
         this.consumed = this.need.byteLength;
         new Uint8Array(this.need).set(this.buffer.subarray(0, this.consumed));
-        returnValue = this.need
+        returnValue = this.need;
       }
     } else if (OPutMap.has(this.need.constructor)) {
       const n = this.need.length << OPutMap.get(this.need.constructor)!;
       if (this.buffer.length >= n) {
         this.consumed = n;
         new Uint8Array(this.need.buffer, this.need.byteOffset).set(this.buffer.subarray(0, n));
-        returnValue = this.need
+        returnValue = this.need;
       }
     } else if (this.g) {
       this.g.throw(new Error('Unsupported type'));

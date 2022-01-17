@@ -76,3 +76,23 @@ test('read', () => {
     expect(value[3]).toBe(2);
   });
 });
+
+// test('fillFromReader', () => {
+//   const rs = new ReadableStream({
+//     start(controller) {
+//       controller.enqueue(new Uint8Array([1, 0, 2, 0]));
+//       controller.enqueue(new Uint8Array([5, 6, 7, 8]));
+//       controller.close();
+//     }
+//   });
+//   function* reader(): Generator<Uint16Array, void, Uint16Array> {
+//     let b = new Uint16Array(2);
+//     yield b;
+//     expect(b[0]).toBe(1);
+//     b = new Uint16Array(3);
+//     yield b;
+//     expect(b[0]).toBe(2);
+//   }
+//   const oput = new OPut(reader());
+//   oput.fillFromReader(rs.getReader());
+// });

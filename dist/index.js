@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const Types = [[Uint8Array, Int8Array], [Uint16Array, Int16Array], [Uint32Array, Int32Array, Float32Array], [Float64Array]];
 const OPutMap = new Map();
 Types.forEach((t, i) => t.forEach((t) => OPutMap.set(t, i)));
@@ -8,6 +17,20 @@ export default class OPut {
         if (g)
             this.need = g.next().value;
     }
+    fillFromReader(source) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { done, value } = yield source.read();
+            if (done) {
+                this.close();
+                return;
+            }
+            else {
+                this.write(value);
+                return this.fillFromReader(source);
+            }
+        });
+    }
+    ;
     demand(n) {
         if (this.consumed) {
             this.buffer.copyWithin(0, this.consumed);

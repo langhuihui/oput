@@ -8,6 +8,7 @@ export default class OPut {
     buffer?: Uint8Array;
     resolve?: (v: any) => void;
     constructor(g?: Generator<NeedTypes, void, InputTypes> | undefined);
+    fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
     demand(n: NeedTypes | void): void;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
     close(): void;
