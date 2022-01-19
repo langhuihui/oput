@@ -34,8 +34,8 @@ export default class OPut {
     this.flush();
   }
   read<T extends NeedTypes>(need: T) {
-    if (this.resolve) Promise.reject("last read not complete yet");
     return new Promise<ReturnType<T>>((resolve, reject) => {
+      if (this.resolve) return reject("last read not complete yet");
       this.resolve = (data) => {
         delete this.resolve;
         delete this.need;
