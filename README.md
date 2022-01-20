@@ -24,6 +24,13 @@ import OPut from 'oput'
 const oput = new OPut(reader)
 oput.write(new Uint32Array([1,2,3]))
 ```
+### 可以在pipeTo中使用
+
+```ts
+import OPut from 'oput'
+const oput = new OPut(reader)
+readableStream.pipeTo(new WritableStream(oput))
+```
 
 消费端负责从OPut中读取数据。根据实际需要可以选择两种读取模式。
 
@@ -61,3 +68,4 @@ function *reader(){
     expect(value[3]).toBe(2)
   })
 ```
+

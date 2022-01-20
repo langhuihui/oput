@@ -77,6 +77,23 @@ test('read', () => {
   });
 });
 
+// test('pipe', () => {
+//   function* reader(): Generator<Uint8Array, void, Uint8Array> {
+//     let b = new Uint8Array(3);
+//     yield b;
+//     expect(b[0]).toBe(1);
+//     b = new Uint8Array(5);
+//     yield b;
+//     expect(b[1]).toBe(2);
+//   }
+//   const oput = new OPut(reader());
+//   new ReadableStream({
+//     start(controller) {
+//       controller.enqueue(new Uint32Array([1, 2]));
+//     }
+//   }).pipeTo(new WritableStream(oput));
+// });
+
 // test('fillFromReader', () => {
 //   const rs = new ReadableStream({
 //     start(controller) {
