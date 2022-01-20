@@ -10,10 +10,10 @@ export default class OPut {
     constructor(g?: Generator<NeedTypes, void, InputTypes> | undefined);
     fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
     consume(): void;
-    demand(n: NeedTypes | void, consume?: boolean): void | InputTypes | null | undefined;
+    demand<T extends NeedTypes>(n: T | void, consume?: boolean): ReturnType<T> | undefined;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
     close(): void;
-    flush(): InputTypes | null | undefined | void;
+    flush(): InputTypes | undefined;
     write(value: InputTypes): void;
     malloc(size: number): Uint8Array;
 }

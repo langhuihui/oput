@@ -31,10 +31,10 @@ export default class OPut {
       this.consumed = 0;
     }
   }
-  demand(n: NeedTypes | void, consume?: boolean) {
+  demand<T extends NeedTypes>(n: T | void, consume?: boolean): ReturnType<T> | undefined {
     if (consume) this.consume();
     this.need = n;
-    return this.flush();
+    return this.flush() as ReturnType<T>;
   }
   read<T extends NeedTypes>(need: T) {
     return new Promise<ReturnType<T>>((resolve, reject) => {
@@ -50,8 +50,7 @@ export default class OPut {
   close() {
     if (this.g) this.g.return();
   }
-
-  flush(): InputTypes | null | undefined | void {
+  flush(): InputTypes | undefined {
     if (!this.buffer || !this.need) return;
     let returnValue: InputTypes | null = null;
     const unread = this.buffer.subarray(this.consumed);
@@ -78,7 +77,7 @@ export default class OPut {
     if (this.g) this.demand(this.g.next(returnValue!).value, true);
     else if (this.resolve)
       this.resolve(returnValue);
-    return returnValue;
+    return returnValue!;
   }
   write(value: InputTypes): void {
     if (value instanceof ArrayBuffer) {
