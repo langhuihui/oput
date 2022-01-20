@@ -114,7 +114,7 @@ export default class OPut {
         if (this.buffer) {
             const l = this.buffer.length;
             const nl = l + size;
-            if (nl <= this.buffer.byteLength - this.buffer.byteOffset) {
+            if (nl <= this.buffer.buffer.byteLength - this.buffer.byteOffset) {
                 this.buffer = new Uint8Array(this.buffer.buffer, this.buffer.byteOffset, nl);
             }
             else {
