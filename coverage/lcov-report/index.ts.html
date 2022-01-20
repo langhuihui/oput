@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.11% </span>
+                <span class="strong">81.92% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>64/77</span>
+                <span class='fraction'>68/83</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.87% </span>
+                <span class="strong">69.69% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>23/32</span>
+                <span class='fraction'>23/33</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">91.66% </span>
+                <span class="strong">92.3% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>11/12</span>
+                <span class='fraction'>12/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">82.85% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>58/70</span>
+                <span class='fraction'>60/72</span>
             </div>
         
             
@@ -172,7 +172,8 @@
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -204,11 +205,13 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -223,35 +226,34 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">17x</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
@@ -307,60 +309,61 @@ export default class OPut {
 <span class="cstat-no" title="statement not covered" >      return this.fillFromReader(source);</span>
     }
   };
-  demand(n: NeedTypes | void) {
-    if (this.consumed) {
-      this.buffer!.copyWithin(0, this.consumed);
-      this.buffer = this.buffer!.subarray(0, this.buffer!.length - this.consumed);
+  consume() {
+    if (this.buffer &amp;&amp; this.consumed) {
+      this.buffer.copyWithin(0, this.consumed);
+      this.buffer = this.buffer.subarray(0, this.buffer.length - this.consumed);
       this.consumed = 0;
     }
+  }
+  demand(n: NeedTypes | void, consume?: boolean) {
+    if (consume) this.consume();
     this.need = n;
-    this.flush();
+    return this.flush();
   }
   read&lt;T extends NeedTypes&gt;(need: T) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.resolve) <span class="cstat-no" title="statement not covered" >Promise.reject("last read not complete yet");</span>
     return new Promise&lt;ReturnType&lt;T&gt;&gt;((resolve, reject) =&gt; {
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.resolve) <span class="cstat-no" title="statement not covered" >return reject("last read not complete yet");</span>
       this.resolve = (data) =&gt; {
         delete this.resolve;
         delete this.need;
-        console.log(data);
         resolve(data);
       };
-      this.demand(need);
+      this.demand(need, true);
     });
   }
   close() {
     if (this.g) this.g.return();
   }
-  flush() {
+&nbsp;
+  flush(): InputTypes | null | undefined | void {
     if (!this.buffer || !this.need) return;
     let returnValue: InputTypes | null = null;
+    const unread = this.buffer.subarray(this.consumed);
+    let n = 0;
     if (typeof this.need === 'number') {
-      if (this.buffer.length &gt;= this.need) {
-        this.consumed = this.need;
-        returnValue = this.buffer.subarray(0, this.consumed);
-      }
+      n = this.need;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (unread.length &lt; n) <span class="cstat-no" title="statement not covered" >return;</span>
+      returnValue = unread.subarray(0, n);
     } else if (this.need instanceof ArrayBuffer) {
-      if (this.buffer.length &gt;= this.need.byteLength) {
-        this.consumed = this.need.byteLength;
-        new Uint8Array(this.need).set(this.buffer.subarray(0, this.consumed));
-        returnValue = this.need;
-      }
+      n = this.need.byteLength;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (unread.length &lt; n) <span class="cstat-no" title="statement not covered" >return;</span>
+      new Uint8Array(this.need).set(unread.subarray(0, n));
+      returnValue = this.need;
     } else if (OPutMap.has(this.need.constructor)) {
-      const n = this.need.length &lt;&lt; OPutMap.get(this.need.constructor)!;
-      if (this.buffer.length &gt;= n) {
-        this.consumed = n;
-        new Uint8Array(this.need.buffer, this.need.byteOffset).set(this.buffer.subarray(0, n));
-        returnValue = this.need;
-      }
+      n = this.need.length &lt;&lt; OPutMap.get(this.need.constructor)!;
+      if (unread.length &lt; n) return;
+      new Uint8Array(this.need.buffer, this.need.byteOffset).set(unread.subarray(0, n));
+      returnValue = this.need;
     } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span><span class="missing-if-branch" title="else path not taken" >E</span>if (this.g) {</span>
 <span class="cstat-no" title="statement not covered" >      this.g.throw(new Error('Unsupported type'));</span>
+<span class="cstat-no" title="statement not covered" >      return;</span>
     }
-    if (returnValue) {
-      if (this.g) this.demand(this.g.next(returnValue).value);
-      else if (this.resolve)
-        this.resolve(returnValue);
-      else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="else path not taken" >E</span>this.consumed = 0;</span>
-    }
+    this.consumed += n;
+    if (this.g) this.demand(this.g.next(returnValue!).value, true);
+    else if (this.resolve)
+      this.resolve(returnValue);
+    return returnValue;
   }
   write(value: InputTypes): void {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (value instanceof ArrayBuffer) {
@@ -377,8 +380,8 @@ export default class OPut {
     if (this.buffer) {
       const l = this.buffer.length;
       const nl = l + size;
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (nl &lt;= this.buffer.byteLength) {
-<span class="cstat-no" title="statement not covered" >        this.buffer = new Uint8Array(this.buffer.buffer, 0, nl);</span>
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (nl &lt;= this.buffer.byteLength - this.buffer.byteOffset) {
+<span class="cstat-no" title="statement not covered" >        this.buffer = new Uint8Array(this.buffer.buffer, this.buffer.byteOffset, nl);</span>
       } else {
         const n = new Uint8Array(nl);
         n.set(this.buffer);
@@ -397,7 +400,7 @@ export default class OPut {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at Mon Jan 17 2022 12:50:52 GMT+0800 (中国标准时间)
+                at Thu Jan 20 2022 16:28:25 GMT+0800 (中国标准时间)
             </div>
         <script src="prettify.js"></script>
         <script>

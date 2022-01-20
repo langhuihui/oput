@@ -9,10 +9,11 @@ export default class OPut {
     resolve?: (v: any) => void;
     constructor(g?: Generator<NeedTypes, void, InputTypes> | undefined);
     fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
-    demand(n: NeedTypes | void): void;
+    consume(): void;
+    demand(n: NeedTypes | void, consume?: boolean): void | InputTypes | null | undefined;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
     close(): void;
-    flush(): void;
+    flush(): InputTypes | null | undefined | void;
     write(value: InputTypes): void;
     malloc(size: number): Uint8Array;
 }

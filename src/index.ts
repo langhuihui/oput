@@ -24,14 +24,17 @@ export default class OPut {
       return this.fillFromReader(source);
     }
   };
-  demand(n: NeedTypes | void) {
-    if (this.consumed) {
-      this.buffer!.copyWithin(0, this.consumed);
-      this.buffer = this.buffer!.subarray(0, this.buffer!.length - this.consumed);
+  consume() {
+    if (this.buffer && this.consumed) {
+      this.buffer.copyWithin(0, this.consumed);
+      this.buffer = this.buffer.subarray(0, this.buffer.length - this.consumed);
       this.consumed = 0;
     }
+  }
+  demand(n: NeedTypes | void, consume?: boolean) {
+    if (consume) this.consume();
     this.need = n;
-    this.flush();
+    return this.flush();
   }
   read<T extends NeedTypes>(need: T) {
     return new Promise<ReturnType<T>>((resolve, reject) => {
@@ -39,45 +42,43 @@ export default class OPut {
       this.resolve = (data) => {
         delete this.resolve;
         delete this.need;
-        console.log(data);
         resolve(data);
       };
-      this.demand(need);
+      this.demand(need, true);
     });
   }
   close() {
     if (this.g) this.g.return();
   }
-  flush() {
+
+  flush(): InputTypes | null | undefined | void {
     if (!this.buffer || !this.need) return;
     let returnValue: InputTypes | null = null;
+    const unread = this.buffer.subarray(this.consumed);
+    let n = 0;
     if (typeof this.need === 'number') {
-      if (this.buffer.length >= this.need) {
-        this.consumed = this.need;
-        returnValue = this.buffer.subarray(0, this.consumed);
-      }
+      n = this.need;
+      if (unread.length < n) return;
+      returnValue = unread.subarray(0, n);
     } else if (this.need instanceof ArrayBuffer) {
-      if (this.buffer.length >= this.need.byteLength) {
-        this.consumed = this.need.byteLength;
-        new Uint8Array(this.need).set(this.buffer.subarray(0, this.consumed));
-        returnValue = this.need;
-      }
+      n = this.need.byteLength;
+      if (unread.length < n) return;
+      new Uint8Array(this.need).set(unread.subarray(0, n));
+      returnValue = this.need;
     } else if (OPutMap.has(this.need.constructor)) {
-      const n = this.need.length << OPutMap.get(this.need.constructor)!;
-      if (this.buffer.length >= n) {
-        this.consumed = n;
-        new Uint8Array(this.need.buffer, this.need.byteOffset).set(this.buffer.subarray(0, n));
-        returnValue = this.need;
-      }
+      n = this.need.length << OPutMap.get(this.need.constructor)!;
+      if (unread.length < n) return;
+      new Uint8Array(this.need.buffer, this.need.byteOffset).set(unread.subarray(0, n));
+      returnValue = this.need;
     } else if (this.g) {
       this.g.throw(new Error('Unsupported type'));
+      return;
     }
-    if (returnValue) {
-      if (this.g) this.demand(this.g.next(returnValue).value);
-      else if (this.resolve)
-        this.resolve(returnValue);
-      else this.consumed = 0;
-    }
+    this.consumed += n;
+    if (this.g) this.demand(this.g.next(returnValue!).value, true);
+    else if (this.resolve)
+      this.resolve(returnValue);
+    return returnValue;
   }
   write(value: InputTypes): void {
     if (value instanceof ArrayBuffer) {
@@ -94,8 +95,8 @@ export default class OPut {
     if (this.buffer) {
       const l = this.buffer.length;
       const nl = l + size;
-      if (nl <= this.buffer.byteLength) {
-        this.buffer = new Uint8Array(this.buffer.buffer, 0, nl);
+      if (nl <= this.buffer.byteLength - this.buffer.byteOffset) {
+        this.buffer = new Uint8Array(this.buffer.buffer, this.buffer.byteOffset, nl);
       } else {
         const n = new Uint8Array(nl);
         n.set(this.buffer);
