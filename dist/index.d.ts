@@ -1,20 +1,32 @@
+declare const U32: unique symbol;
+declare const U16: unique symbol;
+declare const U8: unique symbol;
 declare type InputTypes = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array | ArrayBuffer;
-declare type NeedTypes = InputTypes | number;
-declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T;
+declare type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
+declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
 export default class OPut {
-    g?: Generator<NeedTypes, void, InputTypes> | undefined;
+    g?: Generator<NeedTypes, void, number | InputTypes> | undefined;
+    static U32: typeof U32;
+    static U16: typeof U16;
+    static U8: typeof U8;
     need?: NeedTypes | void;
     consumed: number;
     buffer?: Uint8Array;
     resolve?: (v: any) => void;
-    constructor(g?: Generator<NeedTypes, void, InputTypes> | undefined);
+    constructor(g?: Generator<NeedTypes, void, number | InputTypes> | undefined);
     fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
     consume(): void;
     demand<T extends NeedTypes>(n: T | void, consume?: boolean): ReturnType<T> | undefined;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
+    readU32(): Promise<number>;
+    readU16(): Promise<number>;
+    readU8(): Promise<number>;
     close(): void;
-    flush(): InputTypes | undefined;
+    flush(): InputTypes | number | undefined;
     write(value: InputTypes): void;
+    writeU32(value: number): void;
+    writeU16(value: number): void;
+    writeU8(value: number): void;
     malloc(size: number): Uint8Array;
 }
 export {};

@@ -77,6 +77,28 @@ test('read', () => {
   });
 });
 
+test('read32', () => {
+  const oput = new OPut();
+  oput.write(new Uint32Array([1, 2]));
+  oput.write(new Uint32Array([1, 2]));
+  oput.read(OPut.U32).then(value => {
+    expect(value).toBe(1 << 24);
+    return oput.read(OPut.U32);
+  }).then(value => {
+    expect(value).toBe(2 << 24);
+  });
+});
+test('write32', () => {
+  const oput = new OPut();
+  oput.writeU32(1);
+  oput.writeU32(2);
+  oput.readU32().then(value => {
+    expect(value).toBe(1);
+    return oput.readU32();
+  }).then(value => {
+    expect(value).toBe(2);
+  });
+});
 // test('pipe', () => {
 //   function* reader(): Generator<Uint8Array, void, Uint8Array> {
 //     let b = new Uint8Array(3);

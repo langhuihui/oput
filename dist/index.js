@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const Types = [[Uint8Array, Int8Array], [Uint16Array, Int16Array], [Uint32Array, Int32Array, Float32Array], [Float64Array]];
+const U32 = Symbol(32);
+const U16 = Symbol(16);
+const U8 = Symbol(8);
 const OPutMap = new Map();
 Types.forEach((t, i) => t.forEach((t) => OPutMap.set(t, i)));
 export default class OPut {
@@ -56,6 +59,15 @@ export default class OPut {
             this.demand(need, true);
         });
     }
+    readU32() {
+        return this.read(U32);
+    }
+    readU16() {
+        return this.read(U16);
+    }
+    readU8() {
+        return this.read(U8);
+    }
     close() {
         if (this.g)
             this.g.return();
@@ -66,22 +78,35 @@ export default class OPut {
         let returnValue = null;
         const unread = this.buffer.subarray(this.consumed);
         let n = 0;
+        const notEnough = (x) => unread.length < (n = x);
         if (typeof this.need === 'number') {
-            n = this.need;
-            if (unread.length < n)
+            if (notEnough(this.need))
                 return;
             returnValue = unread.subarray(0, n);
         }
         else if (this.need instanceof ArrayBuffer) {
-            n = this.need.byteLength;
-            if (unread.length < n)
+            if (notEnough(this.need.byteLength))
                 return;
             new Uint8Array(this.need).set(unread.subarray(0, n));
             returnValue = this.need;
         }
+        else if (this.need === U32) {
+            if (notEnough(4))
+                return;
+            returnValue = (unread[0] << 24) | (unread[1] << 16) | (unread[2] << 8) | unread[3];
+        }
+        else if (this.need === U16) {
+            if (notEnough(2))
+                return;
+            returnValue = (unread[0] << 8) | unread[1];
+        }
+        else if (this.need === U8) {
+            if (notEnough(1))
+                return;
+            returnValue = unread[0];
+        }
         else if (OPutMap.has(this.need.constructor)) {
-            n = this.need.length << OPutMap.get(this.need.constructor);
-            if (unread.length < n)
+            if (notEnough(this.need.length << OPutMap.get(this.need.constructor)))
                 return;
             new Uint8Array(this.need.buffer, this.need.byteOffset).set(unread.subarray(0, n));
             returnValue = this.need;
@@ -110,6 +135,18 @@ export default class OPut {
         }
         this.flush();
     }
+    writeU32(value) {
+        this.malloc(4).set([(value >> 24) & 0xff, (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff]);
+        this.flush();
+    }
+    writeU16(value) {
+        this.malloc(2).set([(value >> 8) & 0xff, value & 0xff]);
+        this.flush();
+    }
+    writeU8(value) {
+        this.malloc(1)[0] = value;
+        this.flush();
+    }
     malloc(size) {
         if (this.buffer) {
             const l = this.buffer.length;
@@ -130,5 +167,8 @@ export default class OPut {
         }
     }
 }
+OPut.U32 = U32;
+OPut.U16 = U16;
+OPut.U8 = U8;
 ;
 //# sourceMappingURL=index.js.map
