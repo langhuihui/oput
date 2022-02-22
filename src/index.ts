@@ -103,13 +103,10 @@ export default class OPut {
   write(value: InputTypes): void {
     if (value instanceof ArrayBuffer) {
       this.malloc(value.byteLength).set(new Uint8Array(value));
-    } else if (OPutMap.has(value.constructor)) {
-      const container = this.malloc(value.length << OPutMap.get(value.constructor)!);
-      container.set(new Uint8Array(value.buffer, value.byteOffset, container.length));
     } else {
-      throw new Error('Unsupported type');
+      this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
     }
-    this.flush();
+    if (this.g || this.resolve) this.flush();
   }
   writeU32(value: number) {
     this.malloc(4).set([(value >> 24) & 0xff, (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff]);
