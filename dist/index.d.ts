@@ -1,7 +1,7 @@
 declare const U32: unique symbol;
 declare const U16: unique symbol;
 declare const U8: unique symbol;
-declare type InputTypes = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array | ArrayBuffer;
+declare type InputTypes = ArrayBufferView | ArrayBufferLike;
 declare type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
 declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
 export default class OPut {
@@ -13,7 +13,10 @@ export default class OPut {
     consumed: number;
     buffer?: Uint8Array;
     resolve?: (v: any) => void;
+    reject?: (err: any) => void;
+    lastReadPromise?: Promise<any>;
     constructor(g?: Generator<NeedTypes, void, number | InputTypes> | undefined);
+    setG(g: Generator<NeedTypes, void, InputTypes | number>): void;
     fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
     consume(): void;
     demand<T extends NeedTypes>(n: T | void, consume?: boolean): ReturnType<T> | undefined;

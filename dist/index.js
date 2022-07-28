@@ -7,18 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const Types = [[Uint8Array, Int8Array], [Uint16Array, Int16Array], [Uint32Array, Int32Array, Float32Array], [Float64Array]];
 const U32 = Symbol(32);
 const U16 = Symbol(16);
 const U8 = Symbol(8);
-const OPutMap = new Map();
-Types.forEach((t, i) => t.forEach((t) => OPutMap.set(t, i)));
 export default class OPut {
     constructor(g) {
         this.g = g;
         this.consumed = 0;
         if (g)
             this.need = g.next().value;
+    }
+    setG(g) {
+        this.g = g;
+        this.demand(g.next().value, true);
     }
     fillFromReader(source) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,15 +49,20 @@ export default class OPut {
         return this.flush();
     }
     read(need) {
-        return new Promise((resolve, reject) => {
-            if (this.resolve)
-                return reject("last read not complete yet");
-            this.resolve = (data) => {
-                delete this.resolve;
-                delete this.need;
-                resolve(data);
-            };
-            this.demand(need, true);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.lastReadPromise) {
+                yield this.lastReadPromise;
+            }
+            return this.lastReadPromise = new Promise((resolve, reject) => {
+                this.reject = reject;
+                this.resolve = (data) => {
+                    delete this.lastReadPromise;
+                    delete this.resolve;
+                    delete this.need;
+                    resolve(data);
+                };
+                this.demand(need, true);
+            });
         });
     }
     readU32() {
@@ -69,8 +75,13 @@ export default class OPut {
         return this.read(U8);
     }
     close() {
+        var _a;
         if (this.g)
             this.g.return();
+        if (this.buffer)
+            this.buffer.subarray(0, 0);
+        (_a = this.reject) === null || _a === void 0 ? void 0 : _a.call(this, new Error('EOF'));
+        delete this.lastReadPromise;
     }
     flush() {
         if (!this.buffer || !this.need)
@@ -83,12 +94,6 @@ export default class OPut {
             if (notEnough(this.need))
                 return;
             returnValue = unread.subarray(0, n);
-        }
-        else if (this.need instanceof ArrayBuffer) {
-            if (notEnough(this.need.byteLength))
-                return;
-            new Uint8Array(this.need).set(unread.subarray(0, n));
-            returnValue = this.need;
         }
         else if (this.need === U32) {
             if (notEnough(4))
@@ -105,8 +110,14 @@ export default class OPut {
                 return;
             returnValue = unread[0];
         }
-        else if (OPutMap.has(this.need.constructor)) {
-            if (notEnough(this.need.length << OPutMap.get(this.need.constructor)))
+        else if (!('buffer' in this.need)) {
+            if (notEnough(this.need.byteLength))
+                return;
+            new Uint8Array(this.need).set(unread.subarray(0, n));
+            returnValue = this.need;
+        }
+        else if ('byteOffset' in this.need) {
+            if (notEnough(this.need.byteLength - this.need.byteOffset))
                 return;
             new Uint8Array(this.need.buffer, this.need.byteOffset).set(unread.subarray(0, n));
             returnValue = this.need;
@@ -123,11 +134,11 @@ export default class OPut {
         return returnValue;
     }
     write(value) {
-        if (value instanceof ArrayBuffer) {
-            this.malloc(value.byteLength).set(new Uint8Array(value));
+        if ('buffer' in value) {
+            this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
         }
         else {
-            this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
+            this.malloc(value.byteLength).set(new Uint8Array(value));
         }
         if (this.g || this.resolve)
             this.flush();
