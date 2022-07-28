@@ -15,9 +15,9 @@ export default class OPut {
     resolve?: (v: any) => void;
     reject?: (err: any) => void;
     lastReadPromise?: Promise<any>;
+    pull?: (v: any) => void;
     constructor(g?: Generator<NeedTypes, void, number | InputTypes> | undefined);
     setG(g: Generator<NeedTypes, void, InputTypes | number>): void;
-    fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void>;
     consume(): void;
     demand<T extends NeedTypes>(n: T | void, consume?: boolean): ReturnType<T> | undefined;
     read<T extends NeedTypes>(need: T): Promise<ReturnType<T>>;
@@ -26,7 +26,7 @@ export default class OPut {
     readU8(): Promise<number>;
     close(): void;
     flush(): InputTypes | number | undefined;
-    write(value: InputTypes): void;
+    write(value: InputTypes): Promise<unknown> | undefined;
     writeU32(value: number): void;
     writeU16(value: number): void;
     writeU8(value: number): void;

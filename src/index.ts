@@ -14,6 +14,7 @@ export default class OPut {
   resolve?: (v: any) => void;
   reject?: (err: any) => void;
   lastReadPromise?: Promise<any>;
+  pull?: (v: any) => void;
   constructor(public g?: Generator<NeedTypes, void, InputTypes | number>) {
     if (g) this.need = g.next().value;
   }
@@ -21,16 +22,6 @@ export default class OPut {
     this.g = g;
     this.demand(g.next().value, true);
   }
-  async fillFromReader<T extends InputTypes>(source: ReadableStreamDefaultReader<T>): Promise<void> {
-    const { done, value } = await source.read();
-    if (done) {
-      this.close();
-      return;
-    } else {
-      this.write(value!);
-      return this.fillFromReader(source);
-    }
-  };
   consume() {
     if (this.buffer && this.consumed) {
       this.buffer.copyWithin(0, this.consumed);
@@ -55,7 +46,8 @@ export default class OPut {
         delete this.need;
         resolve(data);
       };
-      this.demand(need, true);
+      const result = this.demand(need, true);
+      if (!result) this.pull?.(need);//已饥饿，等待数据
     });
   }
   readU32(): Promise<number> {
@@ -109,13 +101,15 @@ export default class OPut {
       this.resolve(returnValue);
     return returnValue!;
   }
-  write(value: InputTypes): void {
+  write(value: InputTypes) {
     if ('buffer' in value) {
       this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
     } else {
       this.malloc(value.byteLength).set(new Uint8Array(value));
     }
     if (this.g || this.resolve) this.flush();
+    //富余，需要等到饥饿
+    if (!this.resolve) return new Promise((resolve) => this.pull = resolve)
   }
   writeU32(value: number) {
     this.malloc(4).set([(value >> 24) & 0xff, (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff]);

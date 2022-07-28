@@ -21,20 +21,6 @@ export default class OPut {
         this.g = g;
         this.demand(g.next().value, true);
     }
-    fillFromReader(source) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { done, value } = yield source.read();
-            if (done) {
-                this.close();
-                return;
-            }
-            else {
-                this.write(value);
-                return this.fillFromReader(source);
-            }
-        });
-    }
-    ;
     consume() {
         if (this.buffer && this.consumed) {
             this.buffer.copyWithin(0, this.consumed);
@@ -54,6 +40,7 @@ export default class OPut {
                 yield this.lastReadPromise;
             }
             return this.lastReadPromise = new Promise((resolve, reject) => {
+                var _a;
                 this.reject = reject;
                 this.resolve = (data) => {
                     delete this.lastReadPromise;
@@ -61,7 +48,9 @@ export default class OPut {
                     delete this.need;
                     resolve(data);
                 };
-                this.demand(need, true);
+                const result = this.demand(need, true);
+                if (!result)
+                    (_a = this.pull) === null || _a === void 0 ? void 0 : _a.call(this, need); //已饥饿，等待数据
             });
         });
     }
@@ -142,6 +131,9 @@ export default class OPut {
         }
         if (this.g || this.resolve)
             this.flush();
+        //富余，需要等到饥饿
+        if (!this.resolve)
+            return new Promise((resolve) => this.pull = resolve);
     }
     writeU32(value) {
         this.malloc(4).set([(value >> 24) & 0xff, (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff]);
