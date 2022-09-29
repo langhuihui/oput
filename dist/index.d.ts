@@ -26,7 +26,7 @@ export default class OPut {
     readU8(): Promise<number>;
     close(): void;
     flush(): InputTypes | number | undefined;
-    write(value: InputTypes): Promise<unknown> | undefined;
+    write(value: InputTypes): Promise<void> | undefined;
     writeU32(value: number): void;
     writeU16(value: number): void;
     writeU8(value: number): void;

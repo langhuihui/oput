@@ -109,7 +109,7 @@ export default class OPut {
     }
     if (this.g || this.resolve) this.flush();
     //富余，需要等到饥饿
-    if (!this.resolve) return new Promise((resolve) => this.pull = resolve)
+    else return new Promise<void>((resolve) => this.pull = resolve);
   }
   writeU32(value: number) {
     this.malloc(4).set([(value >> 24) & 0xff, (value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff]);

@@ -132,7 +132,7 @@ export default class OPut {
         if (this.g || this.resolve)
             this.flush();
         //富余，需要等到饥饿
-        if (!this.resolve)
+        else
             return new Promise((resolve) => this.pull = resolve);
     }
     writeU32(value) {
