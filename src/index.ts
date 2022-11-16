@@ -1,9 +1,9 @@
 const U32 = Symbol(32);
 const U16 = Symbol(16);
 const U8 = Symbol(8);
-type InputTypes = ArrayBufferView | ArrayBufferLike;
-type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
-type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
+export type InputTypes = ArrayBufferView | ArrayBufferLike;
+export type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
+export type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
 export default class OPut {
   static U32: typeof U32 = U32;
   static U16: typeof U16 = U16;
@@ -102,7 +102,9 @@ export default class OPut {
     return returnValue!;
   }
   write(value: InputTypes) {
-    if ('buffer' in value) {
+    if(value instanceof Uint8Array){
+      this.malloc(value.length).set(value);
+    } else if ('buffer' in value) {
       this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
     } else {
       this.malloc(value.byteLength).set(new Uint8Array(value));

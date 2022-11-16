@@ -123,7 +123,10 @@ export default class OPut {
         return returnValue;
     }
     write(value) {
-        if ('buffer' in value) {
+        if (value instanceof Uint8Array) {
+            this.malloc(value.length).set(value);
+        }
+        else if ('buffer' in value) {
             this.malloc(value.byteLength).set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
         }
         else {

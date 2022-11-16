@@ -99,6 +99,20 @@ test('write32', () => {
     expect(value).toBe(2);
   });
 });
+
+test('write0', () => {
+  function* reader(): Generator<Uint16Array, void, Uint16Array> {
+    // let b = new Uint16Array(2);
+    // yield b;
+    // expect(b[0]).toBe(1);
+    // b = new Uint16Array(3);
+    // yield b;
+    // expect(b[0]).toBe(2);
+  }
+  const oput = new OPut(reader());
+  oput.write(new Uint32Array([]));
+  oput.write(new Uint32Array([]));
+});
 // test('pipe', () => {
 //   function* reader(): Generator<Uint8Array, void, Uint8Array> {
 //     let b = new Uint8Array(3);

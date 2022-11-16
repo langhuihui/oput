@@ -1,9 +1,9 @@
 declare const U32: unique symbol;
 declare const U16: unique symbol;
 declare const U8: unique symbol;
-declare type InputTypes = ArrayBufferView | ArrayBufferLike;
-declare type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
-declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
+export declare type InputTypes = ArrayBufferView | ArrayBufferLike;
+export declare type NeedTypes = InputTypes | number | typeof U32 | typeof U16 | typeof U8;
+export declare type ReturnType<T extends NeedTypes> = T extends number ? Uint8Array : T extends (typeof U32 | typeof U16 | typeof U8) ? number : T;
 export default class OPut {
     g?: Generator<NeedTypes, void, number | InputTypes> | undefined;
     static U32: typeof U32;
